@@ -13,7 +13,11 @@ export const parseCsvToBillObjects = async (
     const bills: Array<BillRecord> = [];
 
     // Create a readable stream from the buffer and pipe it to csvParser
-    const stream = Readable.from(buffer).pipe(csvParser());
+    const stream = Readable.from(buffer).pipe(
+        csvParser({
+            mapHeaders: ({ header }) => header.trim().toLowerCase(), // Normalize headers to lowercase
+        })
+    );
 
     return new Promise((resolve, reject) => {
         stream.on("headers", (headers: string[]) => {
@@ -41,9 +45,9 @@ export const parseCsvToBillObjects = async (
         stream.on("data", (row) => {
             try {
                 bills.push({
-                    amount: parseFloat(row.Amount),
-                    date: row.Date,
-                    vendorName: row["Vendor Name"],
+                    amount: parseFloat(row.amount),
+                    date: row.date,
+                    vendorName: row["vendor name"],
                 });
             } catch (error) {
                 stream.destroy();
